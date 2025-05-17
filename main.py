@@ -1,245 +1,155 @@
-# Data Loading and Exploration
-import pandas as pd
+from flask import Flask, render_template, request, jsonify
 
-file_path = 'owid-covid-data.csv'
+app = Flask(__name__)
 
-# Loading the dataset
-df = pd.read_csv(file_path)
+# Configuration
+DEBUG = True  # Enable debugging for development
 
+# Route for the home page
+@app.route('/')
+def home():
+    """
+    Renders the home page with links to the three systems.
+    """
+    return render_template('index.html')
 
-print("Column names:")
-print(df.columns)
-print("\n" + "="*30 + "\n")
+# Route for the Crop Monitoring System
+@app.route('/crop_monitoring')
+def crop_monitoring():
+    """
+    Renders the Crop Monitoring System page.
+    Simulates fetching data from sensors and weather API.
+    """
+    # In a real application, you would fetch data from sensors and APIs
+    sensor_data = {
+        'temperature': 25,
+        'humidity': 60,
+        'soil_moisture': 70
+    }
+    weather_forecast = {
+        'temperature': 28,
+        'condition': 'Sunny',
+        'wind_speed': 10
+    }
+    pest_alerts = [
+        {'type': 'Aphids', 'severity': 'Low', 'location': 'Field 1'},
+        {'type': 'Spider Mites', 'severity': 'Medium', 'location': 'Field 2'}
+    ]
+    crop_health = {
+        'ndvi': 0.85,
+        'growth_stage': 'Flowering'
+    }
 
+    return render_template(
+        'crop_monitoring.html',
+        sensor_data=sensor_data,
+        weather_forecast=weather_forecast,
+        pest_alerts=pest_alerts,
+        crop_health=crop_health
+    )
 
-print("First 5 rows of the dataframe:")
-print(df.head())
-print("\n" + "="*30 + "\n")
+# Route for the Livestock Management System
+@app.route('/livestock_management')
+def livestock_management():
+    """
+    Renders the Livestock Management System page.
+    Simulates fetching data about livestock.
+    """
+    # In a real application, you would fetch data from a database or API
+    livestock_data = [
+        {
+            'id': '12345',
+            'type': 'Cow',
+            'breed': 'Holstein',
+            'health_status': 'Healthy',
+            'last_checkup': '2024-01-15',
+            'breeding_status': 'Open',
+            'productivity': {'milk_yield': 25, 'weight': 550}
+        },
+        {
+            'id': '67890',
+            'type': 'Cow',
+            'breed': 'Jersey',
+            'health_status': 'Healthy',
+            'last_checkup': '2024-02-20',
+            'breeding_status': 'Pregnant',
+            'productivity': {'milk_yield': 20, 'weight': 500}
+        },
+        {
+            'id': '24680',
+            'type': 'Sheep',
+            'breed': 'Dorper',
+            'health_status': 'Healthy',
+            'last_checkup': '2024-03-10',
+            'breeding_status': 'Not Bred',
+            'productivity': {'wool_yield': 5, 'weight': 70}
+        }
+    ]
+    return render_template('livestock_management.html', livestock_data=livestock_data)
 
+# Route for the Agri-Inputs Marketplace
+@app.route('/agri_marketplace')
+def agri_marketplace():
+    """
+    Renders the Agri-Inputs Marketplace page.
+    Simulates fetching data about products.
+    """
+    # In a real application, you would fetch data from a database
+    products = [
+        {
+            'id': 'S101',
+            'name': 'Hybrid Corn Seeds',
+            'category': 'Seeds',
+            'price': 150,
+            'unit': 'kg',
+            'description': 'High-yield hybrid corn seeds',
+            'supplier': 'ABC Seed Company',
+            'reviews': [
+                {'user': 'Farmer John', 'rating': 5, 'comment': 'Excellent seeds!'},
+                {'user': 'Farmer Jane', 'rating': 4, 'comment': 'Good germination rate.'}
+            ]
+        },
+        {
+            'id': 'F202',
+            'name': 'Nitrogen Fertilizer',
+            'category': 'Fertilizers',
+            'price': 50,
+            'unit': 'bag',
+            'description': 'High-quality nitrogen fertilizer',
+            'supplier': 'XYZ Chemicals',
+            'reviews': [
+                {'user': 'Farmer Peter', 'rating': 4, 'comment': 'Good product, fast delivery.'},
+                {'user': 'Farmer Paul', 'rating': 3, 'comment': 'Slightly expensive.'}
+            ]
+        },
+        {
+            'id': 'P303',
+            'name': 'Pesticide X',
+            'category': 'Pesticides',
+            'price': 75,
+            'unit': 'liter',
+            'description': 'Effective pesticide for broad-spectrum control',
+            'supplier': 'Green Agro Solutions',
+            'reviews': [
+                {'user': 'Farmer Mary', 'rating': 5, 'comment': 'Very effective against pests.'},
+                {'user': 'Farmer Mike', 'rating': 4, 'comment': 'Easy to use.'}
+            ]
+        },
+        {
+            'id': 'E404',
+            'name': 'Tractor Model T100',
+            'category': 'Equipment',
+            'price': 10000,
+            'unit': 'unit',
+            'description': 'Powerful tractor for all farming needs',
+            'supplier': 'Best Tractors Ltd.',
+            'reviews': [
+                {'user': 'Farmer David', 'rating': 5, 'comment': 'Excellent tractor, very reliable'},
+                {'user': 'Farmer Sarah', 'rating': 4, 'comment': 'Good value for money'}
+            ]
+        }
+    ]
+    return render_template('agri_marketplace.html', products=products)
 
-print("Number of missing values per column:")
-print(df.isnull().sum())
-
-
-
-# Data Cleaning
-
-# 1. Filter countries of interest
-countries_of_interest = ['Kenya', 'USA', 'India']
-df_filtered = df[df['location'].isin(countries_of_interest)].copy()
-print("DataFrame after filtering for specific countries:")
-print(df_filtered['location'].unique()) # Verify the countries
-print("\n" + "="*30 + "\n")
-
-# 2. Drop rows with missing dates
-df_cleaned = df_filtered.dropna(subset=['date'])
-print(f"Number of rows after dropping rows with missing dates: {len(df_cleaned)}")
-print(f"Number of missing dates: {df_cleaned['date'].isnull().sum()}")
-print("\n" + "="*30 + "\n")
-
-# Identify critical numeric columns where missing values might be problematic
-critical_numeric_cols = ['total_cases', 'total_deaths', 'new_cases', 'new_deaths']
-
-# Drop rows where critical numeric values are missing
-df_cleaned = df_cleaned.dropna(subset=critical_numeric_cols)
-print(f"Number of rows after dropping rows with missing critical numeric values: {len(df_cleaned)}")
-print(f"Missing values in critical columns after dropping:\n{df_cleaned[critical_numeric_cols].isnull().sum()}")
-print("\n" + "="*30 + "\n")
-
-
-# 3. Convert date column to datetime
-df_cleaned['date'] = pd.to_datetime(df_cleaned['date'])
-print("Data type of 'date' column after conversion:")
-print(df_cleaned['date'].dtype)
-print("\n" + "="*30 + "\n")
-
-# 4. Handle missing numeric values (example using 'total_vaccinations')
-
-# Option A: Fill missing 'total_vaccinations' with 0
-df_filled_zero = df_cleaned.copy()
-df_filled_zero['total_vaccinations'].fillna(0, inplace=True)
-print("Missing values in 'total_vaccinations' after filling with 0:", df_filled_zero['total_vaccinations'].isnull().sum())
-print("\n" + "="*30 + "\n")
-
-# Exploratory Data Analysis (EDA)
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Assuming your cleaned DataFrame is named 'df_cleaned' and contains the 'date',
-# 'location', 'total_cases', 'total_deaths', and 'new_cases' columns.
-
-# Ensure 'date' column is in datetime format (as per previous steps)
-if not pd.api.types.is_datetime64_any_dtype(df_cleaned['date']):
-    df_cleaned['date'] = pd.to_datetime(df_cleaned['date'])
-    print("Converted 'date' column to datetime format.")
-
-# Define the countries of interest
-countries_of_interest = ['Kenya', 'USA', 'India']
-df_countries = df_cleaned[df_cleaned['location'].isin(countries_of_interest)]
-
-# 1. Plot total cases over time for selected countries
-plt.figure(figsize=(12, 6))
-sns.lineplot(data=df_countries, x='date', y='total_cases', hue='location')
-plt.xlabel('Date')
-plt.ylabel('Total Cases')
-plt.title('Total COVID-19 Cases Over Time')
-plt.grid(True)
-plt.show()
-
-# 2. Plot total deaths over time
-plt.figure(figsize=(12, 6))
-sns.lineplot(data=df_countries, x='date', y='total_deaths', hue='location')
-plt.xlabel('Date')
-plt.ylabel('Total Deaths')
-plt.title('Total COVID-19 Deaths Over Time')
-plt.grid(True)
-plt.show()
-
-# 3. Compare daily new cases between countries
-plt.figure(figsize=(12, 6))
-sns.lineplot(data=df_countries, x='date', y='new_cases', hue='location')
-plt.xlabel('Date')
-plt.ylabel('Daily New Cases')
-plt.title('Daily New COVID-19 Cases')
-plt.grid(True)
-plt.show()
-
-# 4. Calculate the death rate: total_deaths / total_cases
-# Be cautious about division by zero; handle cases where total_cases is zero
-df_countries['death_rate'] = df_countries.apply(
-    lambda row: row['total_deaths'] / row['total_cases'] if row['total_cases'] > 0 else 0,
-    axis=1
-)
-
-# Plot the death rate over time for selected countries
-plt.figure(figsize=(12, 6))
-sns.lineplot(data=df_countries, x='date', y='death_rate', hue='location')
-plt.xlabel('Date')
-plt.ylabel('Death Rate (Total Deaths / Total Cases)')
-plt.title('COVID-19 Death Rate Over Time')
-plt.grid(True)
-plt.show()
-
-
-# Visulaisation of Vaccination Data
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Assuming your cleaned DataFrame is named 'df_cleaned' and contains
-# 'date', 'location', 'total_vaccinations', and 'population' columns.
-
-# Ensure 'date' column is in datetime format
-if not pd.api.types.is_datetime64_any_dtype(df_cleaned['date']):
-    df_cleaned['date'] = pd.to_datetime(df_cleaned['date'])
-    print("Converted 'date' column to datetime format.")
-
-# Define the countries of interest
-countries_of_interest = ['Kenya', 'USA', 'India']
-df_vaccination = df_cleaned[df_cleaned['location'].isin(countries_of_interest)].copy()
-
-# 1. Plot cumulative vaccinations over time for selected countries
-plt.figure(figsize=(12, 6))
-sns.lineplot(data=df_vaccination, x='date', y='total_vaccinations', hue='location')
-plt.xlabel('Date')
-plt.ylabel('Total Vaccinations')
-plt.title('Cumulative COVID-19 Vaccinations Over Time')
-plt.grid(True)
-plt.show()
-
-# 2. Compare % vaccinated population (using the latest available data for each country)
-latest_vaccination_data = df_vaccination.groupby('location').apply(lambda x: x.nlargest(1, 'date')).reset_index(drop=True)
-
-# Ensure population is not zero to avoid division by zero
-latest_vaccination_data['population'] = latest_vaccination_data['population'].replace(0, 1) # Replace 0 with 1 for calculation
-
-latest_vaccination_data['percent_vaccinated'] = (latest_vaccination_data['total_vaccinations'] / latest_vaccination_data['population']) * 100
-
-plt.figure(figsize=(8, 6))
-sns.barplot(data=latest_vaccination_data, x='location', y='percent_vaccinated')
-plt.xlabel('Country')
-plt.ylabel('Percent of Population Vaccinated (Latest Data)')
-plt.title('Comparison of Percentage Vaccinated Population')
-plt.ylim(0, 100) # Set y-axis limit to 0-100%
-plt.show()
-
-# Optional: Pie charts for vaccinated vs. unvaccinated (using the latest data)
-for country in countries_of_interest:
-    country_latest = latest_vaccination_data[latest_vaccination_data['location'] == country].iloc[0]
-    vaccinated = country_latest['total_vaccinations']
-    population = country_latest['population']
-    unvaccinated = population - vaccinated
-
-    if population > 0:
-        labels = ['Vaccinated', 'Unvaccinated']
-        sizes = [vaccinated, unvaccinated]
-        plt.figure(figsize=(6, 6))
-        plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
-        plt.title(f'Vaccination Status in {country} (Latest Data)')
-        plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-        plt.show()
-    else:
-        print(f"Population data not available for {country} to create a pie chart.")
-
-
-# Data Analysis and Insights
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Assuming your cleaned DataFrame is namegit d 'df_cleaned' and contains
-# 'date', 'location', 'total_vaccinations', and 'population' columns.
-
-# Ensure 'date' column is in datetime format
-if not pd.api.types.is_datetime64_any_dtype(df_cleaned['date']):
-    df_cleaned['date'] = pd.to_datetime(df_cleaned['date'])
-    print("Converted 'date' column to datetime format.")
-
-# Define the countries of interest
-countries_of_interest = ['Kenya', 'USA', 'India']
-df_vaccination = df_cleaned[df_cleaned['location'].isin(countries_of_interest)].copy()
-
-# 1. Plot cumulative vaccinations over time for selected countries
-plt.figure(figsize=(12, 6))
-sns.lineplot(data=df_vaccination, x='date', y='total_vaccinations', hue='location')
-plt.xlabel('Date')
-plt.ylabel('Total Vaccinations')
-plt.title('Cumulative COVID-19 Vaccinations Over Time')
-plt.grid(True)
-plt.show()
-
-# 2. Compare % vaccinated population (using the latest available data for each country)
-latest_vaccination_data = df_vaccination.groupby('location').apply(lambda x: x.nlargest(1, 'date')).reset_index(drop=True)
-
-# Ensure population is not zero to avoid division by zero
-latest_vaccination_data['population'] = latest_vaccination_data['population'].replace(0, 1) # Replace 0 with 1 for calculation
-
-latest_vaccination_data['percent_vaccinated'] = (latest_vaccination_data['total_vaccinations'] / latest_vaccination_data['population']) * 100
-
-plt.figure(figsize=(8, 6))
-sns.barplot(data=latest_vaccination_data, x='location', y='percent_vaccinated')
-plt.xlabel('Country')
-plt.ylabel('Percent of Population Vaccinated (Latest Data)')
-plt.title('Comparison of Percentage Vaccinated Population')
-plt.ylim(0, 100) # Set y-axis limit to 0-100%
-plt.show()
-
-# Optional: Pie charts for vaccinated vs. unvaccinated (using the latest data)
-for country in countries_of_interest:
-    country_latest = latest_vaccination_data[latest_vaccination_data['location'] == country].iloc[0]
-    vaccinated = country_latest['total_vaccinations']
-    population = country_latest['population']
-    unvaccinated = population - vaccinated
-
-    if population > 0:
-        labels = ['Vaccinated', 'Unvaccinated']
-        sizes = [vaccinated, unvaccinated]
-        plt.figure(figsize=(6, 6))
-        plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
-        plt.title(f'Vaccination Status in {country} (Latest Data)')
-        plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-        plt.show()
-    else:
-        print(f"Population data not available for {country} to create a pie chart.")
+if __name__ == '__main__':
+    app.run(debug=DEBUG)

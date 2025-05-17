@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livestock Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-purple-100 to-pink-100 min-h-screen flex flex-col">
+    <header class="bg-purple-600 text-white py-4 shadow-md rounded-b-lg">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-semibold text-center">Livestock Management</h1>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 flex-grow">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Manage Your Livestock</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-semibold text-purple-700 mb-4">Animal Overview</h3>
+                <div id="livestock_summary" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-700 font-medium">Total Animals:</p>
+                        <p id="total_animals" class="text-gray-900">--</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-700 font-medium">Healthy Animals:</p>
+                        <p id="healthy_animals" class="text-gray-900">--</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-700 font-medium">Average Age:</p>
+                        <p id="average_age" class="text-gray-900">-- Years</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-700 font-medium">Average Weight:</p>
+                        <p id="average_weight" class="text-gray-900">-- Kg</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h4 class="text-lg font-semibold text-purple-700 mb-2">Livestock Distribution</h4>
+                    <canvas id="livestockChart" width="400" height="200"></canvas>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-semibold text-pink-700 mb-4">Health and Breeding</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-700 font-medium">Last Checkup:</p>
+                        <p id="last_checkup" class="text-gray-900">--</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-700 font-medium">Next Checkup:</p>
+                        <p id="next_checkup" class="text-gray-900">--</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-700 font-medium">Breeding Status:</p>
+                        <p id="breeding_status" class="text-gray-900">--</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-700 font-medium">Calving Date:</p>
+                        <p id="calving_date" class="text-gray-900">--</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <section class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-700 mb-4">Milk Production</h3>
+                <div>
+                    <p class="text-gray-700 font-medium">Daily Yield:</p>
+                    <p id="daily_yield" class="text-gray-900">-- L</p>
+                </div>
+                <div>
+                    <p class="text-gray-700 font-medium">Monthly Yield:</p>
+                    <p id="monthly_yield" class="text-gray-900">-- L</p>
+                </div>
+                <div>
+                    <p class="text-gray-700 font-medium">Average Lactation:</p>
+                    <p id="average_lactation" class="text-gray-900">-- Days</p>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-semibold text-red-700 mb-4">Livestock Alerts</h3>
+                <div id="livestock_alerts" class="space-y-2">
+                    <p class="text-gray-700">No alerts at this time.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-4 mt-8 rounded-t-lg">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Smart Farming Solutions. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+       // Get references to HTML elements
+        const totalAnimalsElement = document.getElementById('total_animals');
+        const healthyAnimalsElement = document.getElementById('healthy_animals');
+        const averageAgeElement = document.getElementById('average_age');
+        const averageWeightElement = document.getElementById('average_weight');
+        const lastCheckupElement = document.getElementById('last_checkup');
+        const nextCheckupElement = document.getElementById('next_checkup');
+        const breedingStatusElement = document.getElementById('breeding_status');
+        const calvingDateElement = document.getElementById('calving_date');
+        const dailyYieldElement = document.getElementById('daily_yield');
+        const monthlyYieldElement = document.getElementById('monthly_yield');
+        const averageLactationElement = document.getElementById('average_lactation');
+        const livestockAlertsElement = document.getElementById('livestock_alerts');
+
+        // Simulate real-time data updates
+        function updateLivestockSummary() {
+            totalAnimalsElement.textContent = Math.floor(Math.random() * 100) + 50; // 50-150
+            healthyAnimalsElement.textContent = Math.floor(Math.random() * 90) + 45; // 45-135
+            averageAgeElement.textContent = (Math.random() * 5 + 2).toFixed(1); // 2-7 years
+            averageWeightElement.textContent = Math.floor(Math.random() * 400) + 300; // 300-700 kg
+        }
+
+        function updateHealthAndBreeding() {
+            const lastCheckupDates = ['2024-01-10', '2024-02-15', '2024-03-20', '2024-04-25'];
+            const nextCheckupDates = ['2024-05-10', '2024-06-15', '2024-07-20', '2024-08-25'];
+            const breedingStatuses = ['Open', 'Pregnant', 'Not Bred', 'Calving'];
+            const calvingDates = ['2024-09-01', '2024-10-15', '2024-11-20', 'N/A'];
+
+            lastCheckupElement.textContent = lastCheckupDates[Math.floor(Math.random() * lastCheckupDates.length)];
+            nextCheckupElement.textContent = nextCheckupDates[Math.floor(Math.random() * nextCheckupDates.length)];
+            breedingStatusElement.textContent = breedingStatuses[Math.floor(Math.random() * breedingStatuses.length)];
+            calvingDateElement.textContent = calvingDates[Math.floor(Math.random() * calvingDates.length)];
+        }
+
+        function updateMilkProduction() {
+            dailyYieldElement.textContent = (Math.random() * 20 + 10).toFixed(1); // 10-30 L
+            monthlyYieldElement.textContent = (Math.random() * 500 + 200).toFixed(1); // 200-700 L
+            averageLactationElement.textContent = Math.floor(Math.random() * 300) + 100; // 100-400 days
+        }
+
+        function updateLivestockAlerts() {
+            const alerts = [
+                { type: 'Low Milk Yield', severity: 'Medium', animal_id: 'Cow #123' },
+                { type: 'Mastitis Alert', severity: 'High', animal_id: 'Cow #456' },
+                { type: 'Calving Soon', severity: 'Medium', animal_id: 'Cow #789' },
+                { type: 'No Alerts', severity: 'None', animal_id: '' }
+            ];
+            const randomAlert = alerts[Math.floor(Math.random() * alerts.length)];
+
+            if (randomAlert.severity === 'None') {
+                livestockAlertsElement.textContent = 'No alerts at this time.';
+            } else {
+                livestockAlertsElement.innerHTML = `<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-2 rounded" role="alert">
+                    <p class="font-bold">${randomAlert.type}: ${randomAlert.severity} Severity</p>
+                    <p>Animal ID: ${randomAlert.animal_id}</p>
+                </div>`;
+            }
+        }
+
+        // Chart.js for livestock distribution
+        const ctx = document.getElementById('livestockChart').getContext('2d');
+        const livestockChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Cows', 'Sheep', 'Goats', 'Pigs'],
+                datasets: [{
+                    label: 'Livestock Distribution',
+                    data: [
+                        Math.floor(Math.random() * 80) + 20,
+                        Math.floor(Math.random() * 50) + 10,
+                        Math.floor(Math.random() * 30) + 5,
+                        Math.floor(Math.random() * 40) + 10
+                    ],
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0'
+                    ],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+
+        // Update chart data
+        function updateLivestockChartData() {
+            livestockChart.data.datasets[0].data = [
+                Math.floor(Math.random() * 80) + 20,
+                Math.floor(Math.random() * 50) + 10,
+                Math.floor(Math.random() * 30) + 5,
+                Math.floor(Math.random() * 40) + 10
+            ];
+            livestockChart.update();
+        }
+
+        // Initial data load and updates
+        updateLivestockSummary();
+        updateHealthAndBreeding();
+        updateMilkProduction();
+        updateLivestockAlerts();
+        setInterval(updateLivestockSummary, 5000);
+        setInterval(updateHealthAndBreeding, 10000);
+        setInterval(updateMilkProduction, 7000);
+        setInterval(updateLivestockAlerts, 15000);
+        setInterval(updateLivestockChartData, 6000);
+    </script>
+</body>
+</html>
